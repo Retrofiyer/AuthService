@@ -26,7 +26,7 @@ jobs:
             docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:qa .
           elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:prod .
-          elif [[ "${{ github.ref }}" == "refs/heads/dev" == "dev" ]]; then
+          elif [[ "${{ github.ref }}" == "refs/heads/dev"]]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:dev .
           else
             echo "Invalid branch for building Docker image."

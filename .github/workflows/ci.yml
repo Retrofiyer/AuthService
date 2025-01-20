@@ -22,22 +22,23 @@ jobs:
       
     - name: Build the Docker image
       run: |
-          if [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:qa .
+          if [[ "${{ github.ref }}" == "refs/heads/dev"]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:dev .
           elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:prod .
-          elif [[ "${{ github.ref }}" == "refs/heads/dev"]]; then
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:dev .
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:qa .
           else
             echo "Invalid branch for building Docker image."
             exit 1
           fi
+          
     - name: Push to Dockerhub
       run: |
-          if [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
-            docker push ${{ secrets.DOCKER_USERNAME }}/authservice:qa
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/authservice:dev
           elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
             docker push ${{ secrets.DOCKER_USERNAME }}/authservice:prod
-          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            docker push ${{ secrets.DOCKER_USERNAME }}/authservice:dev
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/authservice:qa
           fi

@@ -1,0 +1,44 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["main", "QA"]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login Dockerhub
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      
+    - name: Build the Docker image
+      run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:dev .
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:prod .
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/authservice:qa .
+          else
+            echo "Invalid branch for building Docker image."
+            exit 1
+          fi
+          
+    - name: Push to Dockerhub
+      run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/authservice:dev
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/authservice:prod
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            docker push ${{ secrets.DOCKER_USERNAME }}/authservice:qa
+          fi

@@ -13,6 +13,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// verified that the middleware has no errors
+app.use(errorHandler);
+
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
 // Load Swagger YAML file
 const swaggerDocument = YAML.load('./src/Docs/swagger.yaml');
 
@@ -23,12 +30,6 @@ if (fs.existsSync('./src/Docs/swagger.yaml')) {
 } else {
     console.log('Swagger documentation disabled.');
 }
-
-// Middleware
-app.use(errorHandler);
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
 
 // Routes
 app.use('/auth', authRoutes);

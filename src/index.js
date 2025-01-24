@@ -13,15 +13,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// verified that the middleware has no errors
+// Load Swagger YAML file
+const swaggerDocument = YAML.load('./src/Docs/swagger.yaml');
+
+// Verified that the middleware has no errors
 app.use(errorHandler);
 
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
-
-// Load Swagger YAML file
-const swaggerDocument = YAML.load('./src/Docs/swagger.yaml');
 
 // Dynamic Swagger control according to branch
 if (fs.existsSync('./src/Docs/swagger.yaml')) {

@@ -14,6 +14,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Manage Swagger Documentation
+      run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]] || [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            echo "Including swagger.yaml for dev or QA."
+            cp ./src/docs/swagger.yaml ./swagger.yaml
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+            echo "Excluding swagger.yaml for production."
+            rm -f ./src/docs/swagger.yaml
+          fi
+          
     - name: Login Dockerhub
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}

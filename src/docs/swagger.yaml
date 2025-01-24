@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: AuthUser API
-  description: API to authenticate users
+  description: API for user authentication and management.
   version: 1.0.0
 servers:
   - url: http://localhost:3000/auth
@@ -9,7 +9,7 @@ paths:
   /login:
     post:
       summary: Authenticate user
-      description: Log in by authenticating the user with his idVolunteer and C.I.
+      description: Validates user credentials (idVolunteer and CI) and returns a JWT token if successful.
       requestBody:
         required: true
         content:
@@ -22,10 +22,10 @@ paths:
                   example: "12345"
                 ci:
                   type: string
-                  example: "9876543210"
+                  example: "987654321"
       responses:
         200:
-          description: Successful authentication
+          description: Authentication successful
           content:
             application/json:
               schema:
@@ -33,10 +33,13 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: "Login successful"
                   token:
                     type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
                   role:
                     type: string
+                    example: "admin"
         401:
           description: Invalid credentials
         500:

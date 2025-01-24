@@ -19,10 +19,10 @@ jobs:
       run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]] || [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
             echo "Including swagger.yaml for dev or QA."
-            cp ./src/Docs/swagger.yaml ./swagger.yaml
+            cp ./src/docs/swagger.yaml ./swagger.yaml
           elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
             echo "Excluding swagger.yaml for production."
-            rm -f ./src/Docs/swagger.yaml
+            rm -f ./src/docs/swagger.yaml
           fi
           
     - name: Login Dockerhub

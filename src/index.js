@@ -1,10 +1,9 @@
 const express = require('express');
-const helmet = require('helmet');
 const dotenv = require("dotenv")
-const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const fs = require('fs')
+const { corsOptions, securityHeaders, limiter} = require("./Middlewares/security.js")
 const errorHandler = require('./Middlewares/errorMiddleware');
 const authRoutes = require('./Routes/authRoutes');
 
@@ -16,12 +15,13 @@ const PORT = process.env.PORT || 3000;
 // Load Swagger YAML file
 const swaggerDocument = YAML.load('./src/Docs/swagger.yaml');
 
+app.use(require("cors")(corsOptions));
+app.use(securityHeaders);
+app.use(express.json());
+app.use(limiter);
+
 // Verified that the middleware has no errors
 app.use(errorHandler);
-
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
 
 // Dynamic Swagger control according to branch
 if (fs.existsSync('./src/Docs/swagger.yaml')) {

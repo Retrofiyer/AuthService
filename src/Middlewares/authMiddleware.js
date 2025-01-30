@@ -17,11 +17,6 @@ async function authMiddleware(req, res, next) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        const validCi = await bcrypt.compare(ci, user.ci);
-        if (!validCi) {
-          return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
         const token = jwt.sign(
             { idVolunteer: user.idVolunteer, role: user.Role },
             process.env.JWT_SECRET,

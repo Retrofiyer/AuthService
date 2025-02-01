@@ -17,6 +17,11 @@ async function authMiddleware(req, res, next) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        const isBlacklisted = async (tokenId) => {
+            const result = await db.query('SELECT token_id FROM blacklisted_tokens WHERE token_id = ?', [tokenId]);
+            return result.length > 0;
+        };
+
         const token = jwt.sign(
             { idVolunteer: user.idVolunteer, role: user.Role },
             process.env.JWT_SECRET,

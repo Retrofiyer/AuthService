@@ -1,21 +1,21 @@
 name: CD Pipeline
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["CI Pipeline"]
     types:
       - completed
-    branches:
-      - dev
-      - main
-      - QA
+  workflow_dispatch:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
     - name: SSH into EC2
       uses: appleboy/ssh-action@v1.2.0
       with:
@@ -23,7 +23,9 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_KEY }}
         script: |
+          # Verifica si Docker está instalado
           if ! command -v docker &> /dev/null; then
+            echo "Instalando Docker..."
             sudo apt update
             sudo apt install -y docker.io
             sudo systemctl start docker
@@ -31,21 +33,41 @@ jobs:
             sudo usermod -aG docker $USER
             sudo systemctl restart docker
           else
-            echo "Docker install"
+            echo "Docker ya está instalado."
           fi
-          
+
+          # Asegúrate de que Docker esté en ejecución
           if ! sudo systemctl is-active --quiet docker; then
             sudo systemctl start docker
           fi
 
     - name: Pull Docker image
-      run: sudo docker pull ${{ secrets.DOCKER_USERNAME }}/authservice:qa
-    
-    - name: Stop docker container
-      run: sudo docker stop $(docker ps -q) || true
-    
-    - name: Delete old docker container
-      run: sudo docker rm -f authservice-container || true
-    
+      run: |
+        if [[ "${{ github.event.workflow_run.head_branch }}" == "QA" ]]; then
+          TAG="qa"
+        elif [[ "${{ github.event.workflow_run.head_branch }}" == "main" ]]; then
+          TAG="prod"
+        else
+          echo "Rama no reconocida. No se puede determinar la etiqueta de la imagen."
+          exit 1
+        fi
+
+        sudo docker pull ${{ secrets.DOCKER_USERNAME }}/authservice:$TAG
+
+    - name: Stop and remove old container
+      run: |
+        sudo docker stop authservice-container || true
+        sudo docker rm -f authservice-container || true
+
     - name: Run Docker Container
-      run: sudo docker run -d -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/authservice:qa
+      run: |
+        if [[ "${{ github.event.workflow_run.head_branch }}" == "QA" ]]; then
+          TAG="qa"
+        elif [[ "${{ github.event.workflow_run.head_branch }}" == "main" ]]; then
+          TAG="prod"
+        else
+          echo "Rama no reconocida. No se puede determinar la etiqueta de la imagen."
+          exit 1
+        fi
+
+        sudo docker run -d -p 3000:3000 --name authservice-container ${{ secrets.DOCKER_USERNAME }}/authservice:$TAG

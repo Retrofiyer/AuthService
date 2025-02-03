@@ -8,6 +8,10 @@ async function authMiddleware(req, res, next) {
     try {
         const { idVolunteer, ci } = req.body;
 
+        if (!/^\d{10}$/.test(ci)) {
+            return res.status(400).json({ error: "The ID must have 10 digits" });
+          }
+
         if (!idVolunteer || !ci) {
             return res.status(400).json({ error: 'Missing idVolunteer or C.I.' });
         }
@@ -15,11 +19,6 @@ async function authMiddleware(req, res, next) {
         const user = await authenticateUser(idVolunteer, ci);
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        const validCi = await bcrypt.compare(ci, user.ci);
-        if (!validCi) {
-          return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const token = jwt.sign(

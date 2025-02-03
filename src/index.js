@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require("dotenv")
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
+const cors = require('cors')
 const fs = require('fs')
 const { corsOptions, securityHeaders, limiter} = require("./Middlewares/security.js")
 const errorHandler = require('./Middlewares/errorMiddleware');
@@ -15,10 +16,12 @@ const PORT = process.env.PORT || 3000;
 // Load Swagger YAML file
 const swaggerDocument = YAML.load('./src/Docs/swagger.yaml');
 
-app.use(require("cors")(corsOptions));
+app.use(cors(corsOptions));
 app.use(securityHeaders);
 app.use(express.json());
 app.use(limiter);
+
+app.options("*", cors(corsOptions));
 
 // Verified that the middleware has no errors
 app.use(errorHandler);

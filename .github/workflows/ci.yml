@@ -75,7 +75,6 @@ jobs:
             echo "Docker is already installed."
           fi
 
-          # Determine the Docker image tag based on the branch
           if [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
             TAG="qa"
           elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then

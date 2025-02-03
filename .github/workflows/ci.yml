@@ -53,3 +53,48 @@ jobs:
           elif [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
             docker push ${{ secrets.DOCKER_USERNAME }}/authservice:qa
           fi
+
+    - name: Deploy to EC2
+      if: ${{ github.event.pull_request.base.ref == 'QA' || github.event.pull_request.base.ref == 'main' }}
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_KEY }}
+        script: |
+          # Install Docker if not already installed
+          if ! command -v docker &> /dev/null; then
+            echo "Installing Docker..."
+            sudo apt update
+            sudo apt install -y docker.io
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            sudo usermod -aG docker $USER
+            sudo systemctl restart docker
+          else
+            echo "Docker is already installed."
+          fi
+
+          # Determine the Docker image tag based on the branch
+          if [[ "${{ github.event.pull_request.base.ref }}" == "QA" ]]; then
+            TAG="qa"
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "main" ]]; then
+            TAG="prod"
+          else
+            echo "Invalid branch for deployment."
+            exit 1
+          fi
+
+          # Pull the Docker image
+          echo "Pulling Docker image with tag: $TAG"
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/authservice:$TAG
+
+          # Stop and remove the old container
+          echo "Stopping and removing old container..."
+          sudo docker stop authservice-container || true
+          sudo docker rm -f authservice-container || true
+
+          # Run the new container
+          echo "Running new container..."
+          sudo docker run -d -p 3000:3000 --name authservice-container ${{ secrets.DOCKER_USERNAME }}/authservice:$TAG
+      

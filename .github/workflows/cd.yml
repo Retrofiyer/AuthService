@@ -32,7 +32,7 @@ jobs:
             sudo usermod -aG docker $USER
             sudo systemctl restart docker
           else
-            echo "Dcker is already installed"
+            echo "Docker is already installed."
           fi
 
           if ! sudo systemctl is-active --quiet docker; then
@@ -46,7 +46,6 @@ jobs:
         elif [[ "${{ github.event.workflow_run.head_branch }}" == "main" ]]; then
           TAG="prod"
         else
-          echo "Rama no reconocida. No se puede determinar la etiqueta de la imagen."
           exit 1
         fi
 
@@ -64,7 +63,6 @@ jobs:
         elif [[ "${{ github.event.workflow_run.head_branch }}" == "main" ]]; then
           TAG="prod"
         else
-          echo "Rama no reconocida. No se puede determinar la etiqueta de la imagen."
           exit 1
         fi
 

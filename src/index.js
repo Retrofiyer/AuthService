@@ -4,9 +4,9 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const cors = require('cors')
 const fs = require('fs')
-const { corsOptions, securityHeaders, limiter} = require("./middlewares/security.js")
-const errorHandler = require('./middlewares/errorMiddleware');
-const authRoutes = require('./routes/authRoutes');
+const { corsOptions, securityHeaders, limiter} = require("./Middlewares/security.js")
+const errorHandler = require('./Middlewares/errorMiddleware');
+const authRoutes = require('./Routes/authRoutes');
 
 dotenv.config();
 

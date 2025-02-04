@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT;
 
 // Load Swagger YAML file
-const swaggerDocument = YAML.load('./src/Docs/swagger.yaml');
+const swaggerDocument = YAML.load('./src/docs/swagger.yaml');
 
 app.use(cors(corsOptions));
 app.use(securityHeaders);

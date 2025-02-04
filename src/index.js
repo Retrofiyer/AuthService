@@ -38,4 +38,4 @@ if (fs.existsSync('./src/Docs/swagger.yaml')) {
 app.use('/auth', authRoutes);
 
 // Start Server
-app.listen(PORT, () => console.log(`AuthUser Service running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`AuthUser Service running on port ${PORT}`));

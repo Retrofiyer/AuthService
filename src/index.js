@@ -11,7 +11,7 @@ const authRoutes = require('./Routes/authRoutes');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 // Load Swagger YAML file
 const swaggerDocument = YAML.load('./src/docs/swagger.yaml');

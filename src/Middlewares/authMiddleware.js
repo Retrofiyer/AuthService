@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv')
-const { authenticateUser } = require('../Models/authModel');
+const { authenticateUser } = require('../models/authModel');
 
 dotenv.config();
 

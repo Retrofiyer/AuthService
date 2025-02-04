@@ -4,9 +4,9 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const cors = require('cors')
 const fs = require('fs')
-const { corsOptions, securityHeaders, limiter} = require("./Middlewares/security.js")
-const errorHandler = require('./Middlewares/errorMiddleware');
-const authRoutes = require('./Routes/authRoutes');
+const { corsOptions, securityHeaders, limiter} = require("./middlewares/security.js")
+const errorHandler = require('./middlewares/errorMiddleware');
+const authRoutes = require('./routes/authRoutes');
 
 dotenv.config();
 
@@ -27,7 +27,7 @@ app.options("*", cors(corsOptions));
 app.use(errorHandler);
 
 // Dynamic Swagger control according to branch
-if (fs.existsSync('./src/Docs/swagger.yaml')) {
+if (fs.existsSync('./src/docs/swagger.yaml')) {
     console.log('Swagger documentation enabled.');
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } else {

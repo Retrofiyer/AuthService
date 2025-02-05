@@ -24,7 +24,7 @@ async function authMiddleware(req, res, next) {
         const token = jwt.sign(
             { idVolunteer: user.idVolunteer, role: user.Role },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '20h' }
         );
 
         req.authData = { token, role: user.Role };

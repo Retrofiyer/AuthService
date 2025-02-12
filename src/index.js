@@ -22,6 +22,9 @@ const collectDefaultMetrics = client.collectDefaultMetrics;
 // Load Swagger YAML file
 const swaggerDocument = YAML.load("./src/docs/swagger.yaml");
 
+// Configuring Prometheus metrics
+collectDefaultMetrics();
+
 // Request counter
 const httpRequestCounter = new client.Counter({
   name: "http_requests_total",
@@ -29,8 +32,35 @@ const httpRequestCounter = new client.Counter({
   labelNames: ["method", "route", "status_code"],
 });
 
-// Configuring Prometheus metrics
-collectDefaultMetrics();
+// Histogram for response times
+const httpRequestDuration = new client.Histogram({
+  name: "http_request_duration_seconds",
+  help: "Histogram for the duration of HTTP requests in seconds",
+  labelNames: ["method", "route", "status_code"],
+  buckets: [0.1, 0.5, 1, 2, 5],
+});
+
+// MMiddleware to measure metrics on each request
+app.use((req, res, next) => {
+  const start = Date.now();
+
+  res.on("finish", () => {
+    const duration = (Date.now() - start) / 1000;
+
+    httpRequestCounter.inc({
+      method: req.method,
+      route: req.path,
+      status_code: res.statusCode,
+    });
+
+    httpRequestDuration.observe(
+      { method: req.method, route: req.path, status_code: res.statusCode },
+      duration
+    );
+  });
+
+  next();
+});
 
 app.use(cors(corsOptions));
 app.use(securityHeaders);
@@ -41,18 +71,6 @@ app.options("*", cors(corsOptions));
 
 // Verified that the middleware has no errors
 app.use(errorHandler);
-
-// Middleware to count requests
-app.use((req, res, next) => {
-  res.on("finish", () => {
-    httpRequestCounter.inc({
-      method: req.method,
-      route: req.path,
-      status_code: res.statusCode,
-    });
-  });
-  next();
-});
 
 // Dynamic Swagger control according to branch
 if (fs.existsSync("./src/docs/swagger.yaml")) {

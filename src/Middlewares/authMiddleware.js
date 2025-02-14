@@ -22,7 +22,7 @@ async function authMiddleware(req, res, next) {
         }
 
         const token = jwt.sign(
-            { idVolunteer: user.idVolunteer, role: user.Role },
+            { idVolunteer: user.idVolunteer, email:user.email ,role: user.Role },
             process.env.JWT_SECRET,
             { expiresIn: '20h' }
         );
